@@ -1,0 +1,141 @@
+<Window x:Class="Verrou.UI.EntryWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="clr-namespace:Verrou.UI"
+        Title="Entrée" Width="680" Height="680" MinWidth="520" MinHeight="480"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False" Style="{StaticResource BaseWindow}" Background="{DynamicResource SurfaceBrush}">
+    <DockPanel Margin="20,16,20,16">
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+            <TextBlock x:Name="ErrorText" Foreground="{DynamicResource DangerBrush}" VerticalAlignment="Center" Margin="0,0,12,0" TextWrapping="Wrap" MaxWidth="360"/>
+            <Button Content="OK" IsDefault="True" MinWidth="100" Style="{StaticResource PrimaryButton}" Click="Ok_Click"/>
+            <Button Content="Annuler" IsCancel="True" MinWidth="90"/>
+        </StackPanel>
+
+        <TabControl x:Name="Tabs" Padding="14,10">
+            <!-- Général -->
+            <TabItem Header="Général">
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Titre" Style="{StaticResource FieldLabel}"/>
+                    <TextBox x:Name="TitleBox" Grid.Column="1" Margin="0,3"/>
+                    <TextBlock Grid.Row="1" Text="Nom d'utilisateur" Style="{StaticResource FieldLabel}"/>
+                    <TextBox x:Name="UserBox" Grid.Row="1" Grid.Column="1" Margin="0,3"/>
+                    <TextBlock Grid.Row="2" Text="Mot de passe" Style="{StaticResource FieldLabel}"/>
+                    <Grid Grid.Row="2" Grid.Column="1" Margin="0,3">
+                        <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                        <ui:SecretBox x:Name="PwdBox"/>
+                        <Button Grid.Column="1" Content="Générer…" Margin="4,0,0,0" Click="Generate_Click" ToolTip="Ouvrir le générateur de mots de passe"/>
+                    </Grid>
+                    <ui:StrengthMeter x:Name="Strength" Grid.Row="3" Grid.Column="1" Margin="0,6,0,8"/>
+                    <TextBlock Grid.Row="4" Text="URL" Style="{StaticResource FieldLabel}"/>
+                    <TextBox x:Name="UrlBox" Grid.Row="4" Grid.Column="1" Margin="0,3"/>
+                    <TextBlock Grid.Row="5" Text="Groupe" Style="{StaticResource FieldLabel}"/>
+                    <ComboBox x:Name="GroupCombo" Grid.Row="5" Grid.Column="1" Margin="0,3" DisplayMemberPath="Value" SelectedValuePath="Key"/>
+                    <TextBlock Grid.Row="6" Text="Étiquettes" Style="{StaticResource FieldLabel}"/>
+                    <TextBox x:Name="TagsBox" Grid.Row="6" Grid.Column="1" Margin="0,3" ToolTip="Séparées par des virgules"/>
+                    <TextBlock Grid.Row="7" Text="Expiration" Style="{StaticResource FieldLabel}"/>
+                    <StackPanel Grid.Row="7" Grid.Column="1" Orientation="Horizontal" Margin="0,3">
+                        <CheckBox x:Name="ExpiresCheck" Content="Expire le" VerticalAlignment="Center"/>
+                        <DatePicker x:Name="ExpiresDate" Margin="8,0,0,0" Width="150" IsEnabled="{Binding IsChecked, ElementName=ExpiresCheck}"/>
+                    </StackPanel>
+                    <TextBlock Grid.Row="8" Text="Notes" Style="{StaticResource FieldLabel}" VerticalAlignment="Top" Margin="0,8,10,0"/>
+                    <TextBox x:Name="NotesBox" Grid.Row="8" Grid.Column="1" Margin="0,3" AcceptsReturn="True" AcceptsTab="False" TextWrapping="Wrap"
+                             VerticalContentAlignment="Top" VerticalScrollBarVisibility="Auto" MinHeight="80"/>
+                </Grid>
+            </TabItem>
+
+            <!-- Champs personnalisés -->
+            <TabItem Header="Champs">
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="200"/><ColumnDefinition Width="14"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                    <DockPanel>
+                        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="-3,6,0,0">
+                            <Button Content="Ajouter" Click="AddField_Click"/>
+                            <Button Content="Supprimer" Click="RemoveField_Click"/>
+                        </StackPanel>
+                        <ListBox x:Name="FieldList" DisplayMemberPath="Display" SelectionChanged="FieldList_SelectionChanged"/>
+                    </DockPanel>
+                    <StackPanel x:Name="FieldEditor" Grid.Column="2" IsEnabled="False">
+                        <TextBlock Text="Nom du champ" Margin="0,0,0,3"/>
+                        <TextBox x:Name="FieldName" TextChanged="FieldEdit_Changed"/>
+                        <TextBlock Text="Valeur" Margin="0,10,0,3"/>
+                        <ui:SecretBox x:Name="FieldValue"/>
+                        <CheckBox x:Name="FieldProtected" Content="Masquer la valeur à l'écran" Margin="0,8,0,0" Checked="FieldEdit_Changed" Unchecked="FieldEdit_Changed"/>
+                        <TextBlock Style="{StaticResource HelpText}" Margin="0,12,0,0"
+                                   Text="Exemples : code PIN, question secrète, clé de licence, numéro client. Tous les champs sont chiffrés dans le coffre ; les champs non masqués sont aussi pris en compte par la recherche. Utilisables dans l'auto-type avec {S:Nom du champ}."/>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+            <!-- Auto-type -->
+            <TabItem Header="Auto-type">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,8,0">
+                <StackPanel>
+                    <CheckBox x:Name="AutoTypeEnabled" Style="{StaticResource Switch}" Content="Auto-type activé pour cette entrée" IsChecked="True"/>
+                    <CheckBox x:Name="ObfuscateCheck" Style="{StaticResource Switch}" Margin="0,8,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Brouillage anti-espion (clavier + presse-papiers)" FontWeight="SemiBold"/>
+                            <TextBlock Style="{StaticResource HelpText}" Text="Le mot de passe est tapé par morceaux dans le désordre, une partie au clavier, une partie collée : un enregistreur de frappe ou un espion du presse-papiers n'en voit qu'une partie. Le champ doit être vide et accepter le collage (Ctrl+V)."/>
+                        </StackPanel>
+                    </CheckBox>
+                    <TextBlock Text="Séquence de frappe" Style="{StaticResource SectionTitle}"/>
+                    <RadioButton x:Name="UseDefaultSeq" GroupName="seq" IsChecked="True" Checked="Seq_Changed">
+                        <TextBlock x:Name="DefaultSeqText" Text="Séquence par défaut du coffre"/>
+                    </RadioButton>
+                    <RadioButton x:Name="UseCustomSeq" GroupName="seq" Content="Séquence personnalisée :" Checked="Seq_Changed"/>
+                    <TextBox x:Name="SeqBox" FontFamily="{StaticResource MonoFont}" Margin="20,4,0,0" IsEnabled="False" TextChanged="SeqBox_TextChanged"/>
+                    <WrapPanel x:Name="SeqButtons" Margin="17,4,0,0" IsEnabled="False">
+                        <Button Content="{}{USERNAME}" Tag="{}{USERNAME}" Click="InsertToken_Click" Padding="6,3" FontSize="11"/>
+                        <Button Content="{}{PASSWORD}" Tag="{}{PASSWORD}" Click="InsertToken_Click" Padding="6,3" FontSize="11"/>
+                        <Button Content="{}{TAB}" Tag="{}{TAB}" Click="InsertToken_Click" Padding="6,3" FontSize="11"/>
+                        <Button Content="{}{ENTER}" Tag="{}{ENTER}" Click="InsertToken_Click" Padding="6,3" FontSize="11"/>
+                        <Button Content="{}{DELAY 500}" Tag="{}{DELAY 500}" Click="InsertToken_Click" Padding="6,3" FontSize="11"/>
+                        <Button Content="{}{S:…}" Tag="{}{S:}" Click="InsertToken_Click" Padding="6,3" FontSize="11"/>
+                    </WrapPanel>
+                    <TextBlock x:Name="SeqError" Foreground="{DynamicResource DangerBrush}" Margin="20,4,0,0" TextWrapping="Wrap"/>
+                    <TextBlock Style="{StaticResource HelpText}" Margin="20,2,0,0"
+                               Text="Codes : {USERNAME} {PASSWORD} {TITLE} {URL} {NOTES} {S:champ} · touches {TAB} {ENTER} {SPACE} {BS} {DEL} {ESC} {UP} {DOWN} {LEFT} {RIGHT} {HOME} {END} {F1}… · répétition {TAB 3} · pause {DELAY 500} · délai entre touches {DELAY=30} · ^ Ctrl, + Maj, % Alt (ex. ^a) · {{} et {}} pour des accolades."/>
+
+                    <TextBlock Text="Fenêtres cibles" Style="{StaticResource SectionTitle}" Margin="0,16,0,4"/>
+                    <TextBox x:Name="WindowsBox" AcceptsReturn="True" Height="70" VerticalContentAlignment="Top" VerticalScrollBarVisibility="Auto" FontFamily="{StaticResource MonoFont}"/>
+                    <TextBlock Style="{StaticResource HelpText}"
+                               Text="Un titre de fenêtre par ligne, avec jokers * et ? (ex. « *Connexion*Ma banque* ») ou une expression régulière entre //…//. Laissé vide : l'entrée est proposée quand le titre de la fenêtre contient le titre de l'entrée ou le nom de domaine de son URL."/>
+                </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Historique -->
+            <TabItem x:Name="HistoryTab" Header="Historique">
+                <Grid>
+                    <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                    <ListView x:Name="HistoryList" SelectionChanged="HistoryList_SelectionChanged">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Version du" Width="140" DisplayMemberBinding="{Binding Date}"/>
+                                <GridViewColumn Header="Titre" Width="150" DisplayMemberBinding="{Binding Snapshot.Title}"/>
+                                <GridViewColumn Header="Nom d'utilisateur" Width="150" DisplayMemberBinding="{Binding Snapshot.UserName}"/>
+                                <GridViewColumn Header="URL" Width="140" DisplayMemberBinding="{Binding Snapshot.Url}"/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                    <Border Grid.Row="1" Background="{DynamicResource Surface2Brush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="0,8,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="Mot de passe de cette version :" Style="{StaticResource FieldLabel}"/>
+                            <TextBox x:Name="HistoryPwd" Grid.Column="1" IsReadOnly="True" BorderThickness="0" Background="Transparent" FontFamily="{StaticResource MonoFont}"/>
+                            <Button x:Name="HistoryReveal" Grid.Column="2" Style="{StaticResource IconButton}" Content="&#xE890;" Click="HistoryReveal_Click" ToolTip="Afficher / masquer"/>
+                        </Grid>
+                    </Border>
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="-3,6,0,0">
+                        <Button x:Name="RestoreButton" Content="Charger cette version dans le formulaire" Click="Restore_Click" IsEnabled="False"/>
+                        <Button x:Name="DeleteVersionButton" Content="Supprimer cette version" Click="DeleteVersion_Click" IsEnabled="False"/>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </DockPanel>
+</Window>

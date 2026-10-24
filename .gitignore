@@ -1,0 +1,16 @@
+# Build
+bin/
+obj/
+publish/
+installer/Output/
+*.user
+*.suo
+.vs/
+.idea/
+TestResults/
+
+# Never commit vaults, keys or local data
+*.verrou
+*.key
+*.tmp
+Verrou-sauvegardes/

@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows10.0.19041.0</TargetFramework>
+    <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AssemblyName>Verrou</AssemblyName>
+    <RootNamespace>Verrou</RootNamespace>
+    <NoWarn>CA1416;WFAC010;WFO0003</NoWarn>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ApplicationIcon>Assets/Verrou.ico</ApplicationIcon>
+
+    <!-- Identité (visible dans Propriétés > Détails de Verrou.exe et dans l'installeur) -->
+    <Product>Verrou</Product>
+    <AssemblyTitle>Verrou</AssemblyTitle>
+    <Description>Verrou — gestionnaire de mots de passe chiffré avec auto-type</Description>
+    <Version>1.4.0</Version>
+    <Authors>Abdel Hakim ZAIMI</Authors>
+    <Company>Abdel Hakim ZAIMI</Company>
+    <Copyright>© 2026 Abdel Hakim ZAIMI</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Verrou.Core\Verrou.Core.csproj" />
+    <!-- QR code pour configurer l'application d'authentification (MIT) -->
+    <PackageReference Include="QRCoder" Version="1.6.0" />
+    <!-- DPAPI : protège le secret 2FA avec le compte Windows -->
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets/Verrou.ico" />
+    <Resource Include="Assets/Fonts/*.ttf" />
+    <EmbeddedResource Include="Resources/en.json" LogicalName="Verrou.Lang.en.json" />
+  </ItemGroup>
+
+</Project>

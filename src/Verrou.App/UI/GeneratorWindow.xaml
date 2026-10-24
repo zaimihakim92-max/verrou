@@ -1,0 +1,76 @@
+<Window x:Class="Verrou.UI.GeneratorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Générateur de mots de passe" Width="540" SizeToContent="Height" ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner" Style="{StaticResource BaseWindow}" Background="{DynamicResource SurfaceBrush}"
+        xmlns:ui="clr-namespace:Verrou.UI">
+    <StackPanel Margin="24,20,24,18">
+        <Border Background="{DynamicResource BgBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="{StaticResource Radius}" Padding="14,10">
+            <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <TextBox x:Name="Output" FontFamily="{StaticResource MonoFont}" FontSize="17" BorderThickness="0" Background="Transparent" Foreground="{DynamicResource AccentBrush}" Padding="0" TextWrapping="Wrap"/>
+                <Button Grid.Column="1" Style="{StaticResource IconButton}" Content="&#xE72C;" ToolTip="Nouveau (F5)" Click="Regenerate_Click" VerticalAlignment="Top"/>
+                <Button Grid.Column="2" Style="{StaticResource IconButton}" Content="&#xE8C8;" ToolTip="Copier" Click="Copy_Click" VerticalAlignment="Top"/>
+            </Grid>
+        </Border>
+        <ui:StrengthMeter x:Name="Strength" Margin="0,12,0,0"/>
+        <TextBlock x:Name="EntropyText" Style="{StaticResource HelpText}" Margin="0,6,0,0"/>
+
+        <StackPanel Orientation="Horizontal" Margin="0,12,0,4">
+            <RadioButton x:Name="ModePassword" Content="Mot de passe" GroupName="mode" IsChecked="True" Margin="0,0,20,0" Checked="Option_Changed"/>
+            <RadioButton x:Name="ModePassphrase" Content="Phrase de passe" GroupName="mode" Checked="Option_Changed"/>
+        </StackPanel>
+
+        <StackPanel x:Name="PasswordPanel">
+            <Grid Margin="0,6,0,0">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="110"/><ColumnDefinition/><ColumnDefinition Width="50"/></Grid.ColumnDefinitions>
+                <TextBlock Text="Longueur" Style="{StaticResource FieldLabel}"/>
+                <Slider x:Name="LengthSlider" Grid.Column="1" Minimum="8" Maximum="64" IsSnapToTickEnabled="True" TickFrequency="1" VerticalAlignment="Center" ValueChanged="Option_Changed"/>
+                <TextBlock Grid.Column="2" Text="{Binding Value, ElementName=LengthSlider}" HorizontalAlignment="Right" VerticalAlignment="Center" FontWeight="SemiBold"/>
+            </Grid>
+            <WrapPanel Margin="110,6,0,0">
+                <CheckBox x:Name="UseUpper" Content="A–Z" Margin="0,0,18,0" Checked="Option_Changed" Unchecked="Option_Changed"/>
+                <CheckBox x:Name="UseLower" Content="a–z" Margin="0,0,18,0" Checked="Option_Changed" Unchecked="Option_Changed"/>
+                <CheckBox x:Name="UseDigits" Content="0–9" Margin="0,0,18,0" Checked="Option_Changed" Unchecked="Option_Changed"/>
+                <CheckBox x:Name="UseSymbols" Content="Symboles !#$…" Checked="Option_Changed" Unchecked="Option_Changed"/>
+            </WrapPanel>
+            <CheckBox x:Name="NoAmbiguous" Content="Éviter les caractères ambigus (I l 1 O 0 o)" Margin="110,4,0,0" Checked="Option_Changed" Unchecked="Option_Changed"/>
+            <Grid Margin="0,6,0,0">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="110"/><ColumnDefinition/><ColumnDefinition Width="110"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                <TextBlock Text="Ajouter" Style="{StaticResource FieldLabel}"/>
+                <TextBox x:Name="ExtraChars" Grid.Column="1" FontFamily="{StaticResource MonoFont}" TextChanged="Option_Changed" ToolTip="Caractères supplémentaires autorisés"/>
+                <TextBlock Grid.Column="2" Text="Exclure" Style="{StaticResource FieldLabel}" Margin="14,0,10,0"/>
+                <TextBox x:Name="ExcludeChars" Grid.Column="3" FontFamily="{StaticResource MonoFont}" TextChanged="Option_Changed" ToolTip="Caractères interdits (ex. refusés par un site)"/>
+            </Grid>
+        </StackPanel>
+
+        <StackPanel x:Name="PassphrasePanel" Visibility="Collapsed">
+            <Grid Margin="0,6,0,0">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="110"/><ColumnDefinition/><ColumnDefinition Width="50"/></Grid.ColumnDefinitions>
+                <TextBlock Text="Nombre de mots" Style="{StaticResource FieldLabel}"/>
+                <Slider x:Name="WordsSlider" Grid.Column="1" Minimum="3" Maximum="12" IsSnapToTickEnabled="True" TickFrequency="1" VerticalAlignment="Center" ValueChanged="Option_Changed"/>
+                <TextBlock Grid.Column="2" Text="{Binding Value, ElementName=WordsSlider}" HorizontalAlignment="Right" VerticalAlignment="Center" FontWeight="SemiBold"/>
+            </Grid>
+            <Grid Margin="0,6,0,0">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="110"/><ColumnDefinition Width="60"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                <TextBlock Text="Séparateur" Style="{StaticResource FieldLabel}"/>
+                <TextBox x:Name="Separator" Grid.Column="1" Text="-" FontFamily="{StaticResource MonoFont}" TextChanged="Option_Changed" MaxLength="3"/>
+            </Grid>
+            <WrapPanel Margin="110,6,0,0">
+                <CheckBox x:Name="Capitalize" Content="Majuscule à chaque mot" Margin="0,0,18,0" Checked="Option_Changed" Unchecked="Option_Changed"/>
+                <CheckBox x:Name="AddDigit" Content="Ajouter un chiffre" Checked="Option_Changed" Unchecked="Option_Changed"/>
+            </WrapPanel>
+            <Grid Margin="0,8,0,0">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="110"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <TextBlock Text="Liste de mots" Style="{StaticResource FieldLabel}"/>
+                <TextBlock x:Name="WordlistText" Grid.Column="1" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Text="EFF (anglais, 7 776 mots)"/>
+                <Button Grid.Column="2" Content="Charger…" Click="LoadWordlist_Click" ToolTip="Fichier texte : un mot par ligne (ou format diceware)"/>
+            </Grid>
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+            <Button x:Name="UseButton" Content="Utiliser" IsDefault="True" MinWidth="100" Style="{StaticResource PrimaryButton}" Click="Use_Click"/>
+            <Button x:Name="CloseButton" Content="Fermer" IsCancel="True" MinWidth="90" Click="Close_Click"/>
+        </StackPanel>
+    </StackPanel>
+</Window>
